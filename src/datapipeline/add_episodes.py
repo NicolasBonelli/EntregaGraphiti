@@ -66,9 +66,7 @@ async def add_episodes_to_graphiti(input_dir: Path):
                 reference_time=reference_time
             )
             print(f"Agregado episodio: episode_{i} ({EpisodeType.text.value})")
-
-            # Esperar 3 segundos antes de seguir
-            await asyncio.sleep(3)
+            await asyncio.sleep(1)
 
         print(f"Se agregaron {len(episodes_text)} episodios al grafo.")
 

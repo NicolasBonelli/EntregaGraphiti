@@ -83,8 +83,8 @@ class GraphitiConnector:
         """Configura Graphiti con Neo4j y Azure OpenAI"""
         try:
             llm_config = LLMConfig(
-                small_model=self.azure_deployment_name,  # e.g., gpt-4o-mini para reranking
-                model=self.azure_deployment_name  # e.g., gpt-4o para inferencia principal
+                small_model=self.azure_deployment_name,  
+                model=self.azure_deployment_name  
             )
             graphiti = Graphiti(
                 self.neo4j_uri,
@@ -96,12 +96,12 @@ class GraphitiConnector:
                 ),
                 embedder=OpenAIEmbedder(
                     config=OpenAIEmbedderConfig(
-                        embedding_model=self.azure_embedding_deployment  # e.g., text-embedding-3-small
+                        embedding_model=self.azure_embedding_deployment  
                     ),
                     client=self.azure_embedding_client
                 ),
                 cross_encoder=OpenAIRerankerClient(
-                    config=LLMConfig(model=llm_config.small_model),  # Usa modelo pequeño para reranking
+                    config=LLMConfig(model=llm_config.small_model),  
                     client=self.azure_graphity_client
                 )
             )

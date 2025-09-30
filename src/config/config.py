@@ -19,8 +19,8 @@ class GraphitiConnector:
         """Inicializa la conexión con Graphiti, Neo4j Aura y Google Gemini usando variables de entorno"""
         # Google Gemini
         self.gemini_api_key = os.getenv("GOOGLE_API_KEY")
-        self.gemini_model = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")  # Default: modelo estable
-        self.gemini_embedding_model = os.getenv("GEMINI_EMBEDDING_MODEL", "text-embedding-004")  # Default: embeddings
+        self.gemini_model = os.getenv("GEMINI_MODEL")  
+        self.gemini_embedding_model = os.getenv("GEMINI_EMBEDDING_MODEL") 
 
         # Neo4j Aura
         self.neo4j_uri = os.getenv("NEO4J_URI")
@@ -95,8 +95,8 @@ class GraphitiConnector:
         try:
             llm_config = LLMConfig(
                 api_key=self.gemini_api_key,
-                model=self.gemini_model,  # gemini-1.5-flash
-                small_model=self.gemini_model  # Mismo modelo para reranking
+                model=self.gemini_model, 
+                small_model=self.gemini_model  
             )
             graphiti = Graphiti(
                 self.neo4j_uri,
@@ -108,7 +108,7 @@ class GraphitiConnector:
                 embedder=GeminiEmbedder(
                     config=GeminiEmbedderConfig(
                         api_key=self.gemini_api_key,
-                        embedding_model=self.gemini_embedding_model  # text-embedding-004
+                        embedding_model=self.gemini_embedding_model
                     )
                 ),
                 cross_encoder=GeminiRerankerClient(
