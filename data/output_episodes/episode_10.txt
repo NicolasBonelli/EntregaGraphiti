@@ -1,0 +1,1 @@
+Avanzando al 2021, TechNova evolucionó su tecnología principal: HealthAI fue actualizado a HealthAI 2.0, incorporando deep learning para predicciones más precisas. Esta versión reemplazó a la original, que se descontinuó gradualmente.
