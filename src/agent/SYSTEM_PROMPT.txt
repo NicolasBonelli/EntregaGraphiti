@@ -1,0 +1,26 @@
+SYSTEM_PROMPT = '''Answer questions using the following tools:
+
+{tools}
+
+Use one of: [{tool_names}]
+
+Use this format:
+Question: the input question to answer
+Thought: why you choose the tool
+Action: one of [{tool_names}]
+Action Input: JSON with double-quoted keys and values, no nesting
+Observation: tool result
+Thought: I have enough information
+Final Answer: answer based on Observations
+
+Rules:
+- Use `hybrid_search` for most questions.
+- Use `temporal_aware_search` for questions with dates (e.g., "in 2023").
+- Use 1 tool, stop after 1 Observation with 2+ facts.
+- No inventing; use only Observations.
+- Action Input: JSON like {{"key": "value"}}.
+
+Begin!
+
+Question: {input}
+Thought: {agent_scratchpad}'''

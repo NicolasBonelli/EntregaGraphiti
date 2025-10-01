@@ -12,6 +12,7 @@ from graphiti_core.llm_client import LLMConfig, OpenAIClient
 from graphiti_core.embedder.openai import OpenAIEmbedder, OpenAIEmbedderConfig
 from graphiti_core.cross_encoder.openai_reranker_client import OpenAIRerankerClient
 from openai import AzureOpenAI
+from langchain_openai import AzureChatOpenAI
 
 load_dotenv(override=True)
 
@@ -26,6 +27,9 @@ class GraphitiConnector:
         self.azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
         self.azure_deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
+        # Azure OpenAI para chat
+        self.azure_chat_deployment_name = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT_NAME")
+        self.azure_chat_api_version = os.getenv("AZURE_OPENAI_API_CHAT_VERSION")
         
         self.embedding_api_version = os.getenv("AZURE_OPENAI_EMBEDDING_API_VERSION")
         self.embedding_endpoint = os.getenv("AZURE_OPENAI_EMBEDDING_ENDPOINT")
@@ -38,9 +42,47 @@ class GraphitiConnector:
         self.neo4j_database = os.getenv("NEO4J_DATABASE")
 
         # Instancias
-        self.azure_client,self.azure_embedding_client,self.azure_graphity_client = self._setup_azure_openai()
+        self.azure_client,self.azure_embedding_client,self.azure_graphity_client,self.azure_chat = self._setup_azure_openai()
         self.neo4j_driver = self._setup_neo4j()
+        self._setup_neo4j_indexes()  # Crea índices al inicializar
         self.graphiti = self._setup_graphiti()
+
+    def _setup_neo4j_indexes(self):
+        """Crea los índices fulltext y regulares necesarios para Graphiti en Neo4j Aura"""
+        try:
+            with self.neo4j_driver.session(database=self.neo4j_database) as session:
+                # Tus índices existentes...
+                # Índice fulltext para nodos (name y summary)
+                session.run("""
+                    CREATE FULLTEXT INDEX node_name_and_summary IF NOT EXISTS
+                    FOR (n:Node) ON EACH [n.name, n.summary]
+                """)
+                print("Índice fulltext 'node_name_and_summary' creado o ya existe.")
+
+                # Índice fulltext para entidades (name y description)
+                session.run("""
+                    CREATE FULLTEXT INDEX entity_search IF NOT EXISTS
+                    FOR (n:Entity) ON EACH [n.name, n.description]
+                """)
+                print("Índice fulltext 'entity_search' creado o ya existe.")
+
+                # Índice regular para UUIDs
+                session.run("""
+                    CREATE INDEX node_uuid IF NOT EXISTS
+                    FOR (n:Node) ON (n.uuid)
+                """)
+                print("Índice regular 'node_uuid' creado o ya existe.")
+
+                # Nuevo índice fulltext para edges (name y fact)
+                session.run("""
+                    CREATE FULLTEXT INDEX edge_name_and_fact IF NOT EXISTS
+                    FOR ()-[r:RELATES_TO]-() ON EACH [r.name, r.fact]
+                """)
+                print("Índice fulltext 'edge_name_and_fact' creado o ya existe.")
+
+                print("Todos los índices necesarios están configurados.")
+        except Exception as e:
+            raise Exception(f"Error creando índices en Neo4j: {e}")
 
     def _setup_azure_openai(self):
         """Configura el cliente de Azure OpenAI"""
@@ -60,7 +102,13 @@ class GraphitiConnector:
                 api_version=self.embedding_api_version,
                 azure_endpoint=self.embedding_endpoint
             )
-            return azure_client,embedding_client_azure,azure_graphiti_client
+            azure_chat_client = AzureChatOpenAI(
+                azure_endpoint=self.azure_endpoint,
+                api_key=self.azure_api_key,
+                deployment_name=self.azure_chat_deployment_name,
+                api_version=self.azure_chat_api_version
+            )
+            return azure_client,embedding_client_azure,azure_graphiti_client,azure_chat_client
         except Exception as e:
             raise
 
@@ -109,11 +157,11 @@ class GraphitiConnector:
         except Exception as e:
             raise
 
-    def get_openai_client(self):
+    def get_openai_client_chat(self):
         """
         Returns the OpenAI model configuration for external usage.
         """
-        return self.azure_client
+        return self.azure_chat
 
 
 # --- MAIN DE PRUEBA ---

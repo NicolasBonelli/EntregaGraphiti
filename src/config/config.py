@@ -85,7 +85,12 @@ class GraphitiConnector:
                     FOR (n:Node) ON (n.uuid)
                 """)
                 print("Índice regular 'node_uuid' creado o ya existe.")
-
+                session.run("""
+                    CREATE FULLTEXT INDEX edge_name_and_fact IF NOT EXISTS
+                    FOR ()-[r]-()
+                    ON EACH [r.name, r.fact]
+                """)
+                print("Índice fulltext 'edge_name_and_fact' creado o ya existe.")
                 print("Todos los índices necesarios están configurados.")
         except Exception as e:
             raise Exception(f"Error creando índices en Neo4j: {e}")
