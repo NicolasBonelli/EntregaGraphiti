@@ -26,5 +26,10 @@ def main(pdf_url: str):
 
 
 if __name__ == "__main__":
-    pdf_url = Path("data/pdfs/tech_nova.pdf")
+    if len(sys.argv) > 1:
+        pdf_url = Path(sys.argv[1])
+        print(f"Usando archivo proporcionado por parámetro: {pdf_url}")
+    else:
+        pdf_url = Path("data/pdfs/tech_nova.pdf")
+        print(f"No se proporcionó archivo por parámetro. Usando por defecto: {pdf_url}")
     main(pdf_url)
