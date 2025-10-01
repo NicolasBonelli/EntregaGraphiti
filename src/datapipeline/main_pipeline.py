@@ -26,8 +26,5 @@ def main(pdf_url: str):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Uso: python main_pipeline.py <ruta_o_url_pdf>")
-        sys.exit(1)
-    pdf_url = sys.argv[1]
+    pdf_url = Path("data/pdfs/tech_nova.pdf")
     main(pdf_url)

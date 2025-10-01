@@ -57,15 +57,17 @@ async def add_episodes_to_graphiti(input_dir: Path):
         source_description = "Extracto de PDF Tech Nova, dividido en pares de oraciones"
         reference_time = datetime.now(timezone.utc)
 
+        input_name = input_dir.stem.replace('_extracted', '')
         for i, episode_text in enumerate(episodes_text, 1):
+            episode_name = f"{input_name}_episode_{i}"
             await graphiti.add_episode(
-                name=f"episode_{i}",
+                name=episode_name,
                 episode_body=episode_text,
                 source=EpisodeType.text,
                 source_description=source_description,
                 reference_time=reference_time
             )
-            print(f"Agregado episodio: episode_{i} ({EpisodeType.text.value})")
+            print(f"Agregado episodio: {episode_name} ({EpisodeType.text.value})")
             await asyncio.sleep(1)
 
         print(f"Se agregaron {len(episodes_text)} episodios al grafo.")
